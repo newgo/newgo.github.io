@@ -40,7 +40,7 @@
 $.get(
   // ROOT_PATH + 'http://localhost:9998/car/mixZoom/1/414',
   ROOT_PATH + '/data/index.json',
-  function (obama_budget_2012) {
+  function (resp) {
     myChart.hideLoading();
     option = {
       tooltip: {
@@ -76,13 +76,13 @@ $.get(
       xAxis: [
         {
           type: 'category',
-          data: obama_budget_2012.data.names
+          data: resp.data.names
         }
       ],
       yAxis: [
         {
           type: 'value',
-          name: obama_budget_2012.data.seriesName,
+          name: resp.data.seriesName,
           axisLabel: {
             // formatter: function (a) {
             //   a = +a;
@@ -112,7 +112,7 @@ $.get(
           left: '93%'
         }
       ],
-      series: obama_budget_2012.data.seriesVOForMzs
+      series: resp.data.seriesVOForMzs
     };
     myChart.setOption(option);
   }
