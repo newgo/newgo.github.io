@@ -86,6 +86,10 @@
             <h4>currentPrice</h4>
             <div id="currentPrice-${id}" class="price">wait...</div>
           </div>
+		  <div class="info-item">
+		    <h4>prePrice</h4>
+            <div id="prePrice-${id}" class="price">wait...</div>
+          </div>
         </div>
         `;
       document.getElementById('container').appendChild(dashboard);
@@ -117,6 +121,14 @@
 	   if (null == data){
 	   return;
 	  }
+	  
+	  //set prePrice
+	  var prePrice = data.prePrice;
+	  if(null != prePrice){
+		var prePriceElement =  document.getElementById(`prePrice-${id}`);
+		prePriceElement.innerText = prePrice
+	  }	
+	  
 	  var details = data.details
 	  var dataArry = details[details.length - 1].split(",")
 	  var length = dataArry.length
