@@ -165,7 +165,15 @@
     }
 
     // Create dashboards for each ID in the dashboardIds array
-    dashboardIds.forEach(id => createDashboard(id));
+    //dashboardIds.forEach(id => createDashboard(id));
+    
+for (let i = 0; i < dashboardIds.length; i++) {
+    // 使用箭头函数以便保留当前的i值
+    setTimeout(() => {
+         createDashboard(dashboardIds[i])
+    }, i * 1000);
+}
+
   </script>
 </body>
 
