@@ -64,7 +64,7 @@
 
   <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
   <script type="text/javascript">
-    const dashboardIds = ['159338', '159339', '159352', '000801', '002317', '300937', '000692']; // Example stock IDs, you can add more here.
+    const dashboardIds = ['159338', '159339', '159352', '000801', '002317', '300937', '000692', '002157']; // Example stock IDs, you can add more here.
 		function getPriceColor(price, currentPrice) {
 	  if (price > currentPrice) return 'red';
 	  if (price < currentPrice) return 'green';
@@ -171,7 +171,7 @@ for (let i = 0; i < dashboardIds.length; i++) {
     // 使用箭头函数以便保留当前的i值
     setTimeout(() => {
          createDashboard(dashboardIds[i])
-    }, i * 10);
+    }, i * 5);
 }
 
   </script>
