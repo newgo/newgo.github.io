@@ -153,6 +153,7 @@
 
       // Update the current time every second
       <!-- setInterval(() => updateCurrentTime(id), 1000); -->
+      
 
       // If an error occurs (e.g., connection closed or interrupted)
       source.addEventListener('error', function (e) {
@@ -173,6 +174,17 @@ for (let i = 0; i < dashboardIds.length; i++) {
          createDashboard(dashboardIds[i])
     }, i * 5);
 }
+	  
+setInterval(() => {
+  for (let i = 0; i < dashboardIds.length; i++) {
+  const currentTime = new Date().getTime() + 10 * 1000; // 当前时间加 10 秒
+  const elementTime = new Date(document.getElementById(`currentTime-${id}`).innerText).getTime();
+  if (elementTime <= currentTime) {
+    window.location.reload();
+    break;
+  }
+}
+}, 10000); 
 
   </script>
 </body>
