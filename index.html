@@ -181,6 +181,8 @@ setInterval(() => {
   const currentTime = new Date().getTime() - 10 * 1000; // 当前时间加 10 秒
   var id = dashboardIds[i];
   const elementTime = new Date(document.getElementById(`currentTime-${id}`).innerText).getTime();
+  console.log('elementTime:'+elementTime)
+  console.log('currentTime:'+currentTime)
   if (elementTime <= currentTime) {
     console.log("window.location.reload");
     window.location.reload();
