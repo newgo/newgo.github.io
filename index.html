@@ -180,6 +180,7 @@ setInterval(() => {
   console.log("check");
   const currentTime = new Date().getTime() - 10 * 1000; // 当前时间加 10 秒
   var id = dashboardIds[i];
+  console.log(id)
   const elementTime = new Date(Date.parse(document.getElementById(`currentTime-${id}`).innerText)).getTime();
   console.log('elementTime:'+elementTime)
   console.log('currentTime:'+currentTime)
