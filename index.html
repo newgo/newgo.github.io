@@ -2,80 +2,115 @@
 <html lang="zh-CN" style="height: 100%">
 
 <head>
-  <meta charset="utf-8">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #rgba(128, 128, 128, 0.5);
-      margin: 0;
-      padding: 0;
-    }
-    #container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: left;
-      padding: 20px;
-    }
-    .dashboard {
-      background-color: #6666;
-      color: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      margin: 10px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .info-container {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      margin-top: 20px;
-    }
-    .info-item {
-      width: 45%;
-      padding: 10px;
-      background-color: #6666;
-      border-radius: 5px;
-      text-align: center;
-    }
-    #dataDisplay {
-      font-size: 18px;
-      margin-top: 20px;
-      color: #ffcc00;
-    }
-    .time {
-      color: #ffcc00;
-	  font-size: 20px;
-    }
-    .price {
-      color: #00ff00;
-	  font-size: 20px;
-    }
-  </style>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #rgba(128, 128, 128, 0.5);
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: left;
+            padding: 20px;
+        }
+
+        .dashboard {
+            background-color: #6666;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            margin: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            width: 45%;
+            padding: 10px;
+            background-color: #6666;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #dataDisplay {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #ffcc00;
+        }
+
+        .time {
+            color: #ffcc00;
+            font-size: 20px;
+        }
+
+        .price {
+            color: #00ff00;
+            font-size: 20px;
+        }
+    </style>
 </head>
 
-<body style="height: 100%; margin: 0">
-  <div id="container">
-    <!-- Multiple dashboards will be dynamically added here -->
-  </div>
+<body style="height: 100%; margin: 0; display: flex;">
+<div id="input-container" style="margin: 20px;">
+    <input id="dashboardIdInput" type="text" placeholder="输入dashboardId，多个Id用逗号分隔"
+           style="padding: 10px; margin-bottom: 10px;">
+    <button id="createDashboardButton" style="padding: 10px;">create</button>
+</div>
+<div id="container" style="flex: 1;">
 
-  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
-  <script type="text/javascript">
-    const dashboardIds = ['159338', '159339', '159352', '000801', '002317', '300937', '000692', '002157']; // Example stock IDs, you can add more here.
-		function getPriceColor(price, currentPrice) {
-	  if (price > currentPrice) return 'red';
-	  if (price < currentPrice) return 'green';
-	  return 'orange'; // or any other color for equal prices
-	}
+</div>
+<script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/moment.js/2.29.1/moment.min.js"></script>
+<script type="text/javascript">
+
+    document.getElementById('createDashboardButton').addEventListener('click', function () {
+        const inputIds = document.getElementById('dashboardIdInput').value.trim();
+        if (inputIds) {
+            const dashboardIds = inputIds.split(' ').map(id => id.trim());
+            <!-- dashboardIds.forEach(dashboardId => { -->
+            <!-- var id = dashboardId.split('.')[0] -->
+            <!-- if (id) { -->
+            <!-- createDashboard(id); -->
+            <!-- } -->
+            <!-- }); -->
+
+            for (let i = 0; i < dashboardIds.length; i++) {
+                // 使用箭头函数以便保留当前的i值
+                setTimeout(() => {
+                    createDashboard(dashboardIds[i].split('.')[0])
+                }, i * 100);
+            }
+
+        } else {
+            console.log('请输入dashboardId');
+        }
+    });
+
+    const dashboardIds = ['159338', '159339', '159352', '000801', '002317', '300937', '000692', '002157', '000498']; // Example stock IDs, you can add more here.
+    function getPriceColor(price, currentPrice) {
+        if (price > currentPrice) return 'red';
+        if (price < currentPrice) return 'green';
+        return 'orange'; // or any other color for equal prices
+    }
 
     // Function to create a new dashboard
     function createDashboard(id) {
-      const dashboard = document.createElement('div');
-      dashboard.classList.add('dashboard');
-      dashboard.innerHTML = `
+        const dashboard = document.createElement('div');
+        dashboard.classList.add('dashboard');
+        dashboard.innerHTML = `
         <h2>data show - ${id}</h2>
         <div class="info-container">
           <div class="info-item">
@@ -92,107 +127,222 @@
           </div>
         </div>
         `;
-      document.getElementById('container').appendChild(dashboard);
+        document.getElementById('container').appendChild(dashboard);
+        if (id.startsWith("600") || id.startsWith("601")) {
+            setupRealTimeDataForWs(id)
+        } else {
+            // Set up real-time updates for this specific dashboard
+            setupRealTimeData(id);
+        }
 
-      // Set up real-time updates for this specific dashboard
-      setupRealTimeData(id);
     }
 
     // Function to update current time
     function updateCurrentTime(id) {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString();
-      document.getElementById(`currentTime-${id}`).innerText = timeString;
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        document.getElementById(`currentTime-${id}`).innerText = timeString;
+    }
+
+    function setPreprice(prePrice, id) {
+        if (null != prePrice) {
+            var prePriceElement = document.getElementById(`prePrice-${id}`);
+            prePriceElement.innerText = prePrice
+        }
+    }
+
+    function comparePrice(currentPrice, id) {
+        var element = document.getElementById(`currentPrice-${id}`);
+        var oldprice = element.innerText;
+        element.style.color = getPriceColor(currentPrice, oldprice)
+        element.innerText = currentPrice;
     }
 
     // Function to fetch and display real-time data
     function setupRealTimeData(id) {
-      const url = `https://21.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=0.${id}&wbp2u=|0|0|0|web`;
+        const url = `https://21.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=0.${id}&wbp2u=|0|0|0|web`;
 
-      // Establish the EventSource connection
-      let source = new EventSource(url);
+        // Establish the EventSource connection
+        let source = new EventSource(url);
 
-      // When a message is received from the server
-      source.addEventListener('message', function (e) {
-        console.log(e.data);
 
-       var jsonObj = JSON.parse(e.data);
-	   var data = jsonObj.data
-	   if (null == data){
-	   return;
-	  }
-	  
-	  //set prePrice
-	  var prePrice = data.prePrice;
-	  if(null != prePrice){
-		var prePriceElement =  document.getElementById(`prePrice-${id}`);
-		prePriceElement.innerText = prePrice
-	  }	
-	  
-	  var details = data.details
-	  var dataArry = details[details.length - 1].split(",")
-	  var length = dataArry.length
+// When a message is received from the server
+        source.addEventListener('message', function (e) {
+            try {
+                console.log(e.data);
+                var data1 = e.data
 
-        // Parse the message data and update price
-        try {
-          if (jsonObj) {
-            var currentPrice = dataArry[length-4] || "unknown";    // Adjust according to actual data field
-			var element = document.getElementById(`currentPrice-${id}`);
-			var oldprice =  element.innerText;
-			element.style.color = getPriceColor(currentPrice,oldprice)
-            element.innerText = currentPrice;
-		
-			var currentTime = dataArry[length-5] || "unknown";
-			document.getElementById(`currentTime-${id}`).innerText = currentTime;
-			
-          }
-        } catch (error) {
-          console.error('Error parsing message data', error);
-        }
-      });
+            } catch (error) {
+                console.log(error);
+                return;
+            }
 
-      // Update the current time every second
-      <!-- setInterval(() => updateCurrentTime(id), 1000); -->
-      
+            var jsonObj = JSON.parse(data1);
+            var data = jsonObj.data
+            if (null == data) {
+                return;
+            }
 
-      // If an error occurs (e.g., connection closed or interrupted)
-      source.addEventListener('error', function (e) {
-        if (e.readyState === EventSource.CLOSED) {
-          console.log("连接关闭");
-        } else {
-          console.log(e);
-        }
-      }, false);
+            //set prePrice
+            var prePrice = data.prePrice;
+            setPreprice(prePrice, id);
+
+            var details = data.details
+            var dataArry = details[details.length - 1].split(",")
+            var length = dataArry.length
+
+            // Parse the message data and update price
+            try {
+                if (jsonObj) {
+                    var currentPrice = dataArry[length - 4] || "unknown";    // Adjust according to actual data field
+                    comparePrice(currentPrice, id);
+
+                    var currentTime = dataArry[length - 5] || "unknown";
+                    document.getElementById(`currentTime-${id}`).innerText = currentTime;
+
+                }
+            } catch (error) {
+                console.error('Error parsing message data', error);
+            }
+        });
+
+        // Update the current time every second
+        <!-- setInterval(() => updateCurrentTime(id), 1000); -->
+
+
+        // If an error occurs (e.g., connection closed or interrupted)
+        source.addEventListener('error', function (e) {
+            if (e.readyState === EventSource.CLOSED) {
+                console.log("连接关闭");
+            } else {
+                console.log(e);
+            }
+        }, false);
+
+        source.onerror = function (event) {
+            console.error('EventSource error, reconnecting...');
+            source.close(); // 关闭当前连接
+            //source = new EventSource('url'); // 重新创建EventSource实例
+            var element = document.getElementById(`currentPrice-${id}`);
+            element.innerText = 'no data';
+        };
     }
+
+    //websocket
+    function setupRealTimeDataForWs(id) {
+        const url = `https://finance.pae.baidu.com/vapi/v1/getquotation?all=1&srcid=5353&pointType=string&group=quotation_minute_ab&market_type=ab&new_Format=1&finClientType=pc&query=${id}&code=${id}`;
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const targetUrl = 'https://example.com/api/data';
+
+        fetch(proxyUrl + url)
+            .then(response => response.json())
+            .then(data => {
+                let s = JSON.stringify(data);
+                console.info(s)
+                extracted(s,id)
+            })
+            .catch(error => console.error('Error:', error));
+        // console.info("send ajax request")
+        // $.ajax({
+        //     url: url,
+        //     type: 'get',
+        //     dataType: 'jsonp',  // 请求方式为jsonp
+        //     crossDomain: true,
+        //     success: function (data) {
+        //         extracted(data)
+        //     },
+        //     data: {}
+        // });
+
+
+    }
+
+    function extracted(data,id) {
+        var jsonObj = JSON.parse(data);
+        var result = jsonObj.Result
+        var pankouinfos = result.pankouinfos
+        var list = pankouinfos.list
+
+        var pp = list[3].value
+        let cur1 = result.cur;
+        let price = cur1.price;
+        setPreprice(pp, id)
+        comparePrice(price, id)
+        let time = cur1.time;
+        console.info(time)
+        let date = unix2human(time)
+        // let formattedDate = date.toISOString().split('T')[0];
+        document.getElementById(`currentTime-${id}`).innerText = date;
+    }
+
+
+    // function formatTime(timestamp) {
+    //     const date = new Date(timestamp);
+    //     const hours = date.getHours().toString().padStart(2, '0');
+    //     const minutes = date.getMinutes().toString().padStart(2, '0');
+    //     const seconds = date.getSeconds().toString().padStart(2, '0');
+    //     return `${hours}:${minutes}:${seconds}`;
+    // }
+
+    /**
+     *
+     * @param {时间戳或者data格式} data
+     * @param {1-返回年月日时分秒 2-返回年月日 3-返回年 } type
+     * @returns
+     */
+    function formatTime(data, type = 1) {
+        let startDate = new Date(data);
+        const year = startDate.getFullYear();
+        const month = String(startDate.getMonth() + 1).padStart(2, "0");
+        const day = String(startDate.getDate()).padStart(2, "0");
+        const hours = String(startDate.getHours()).padStart(2, "0");
+        const minutes = String(startDate.getMinutes()).padStart(2, "0");
+        const seconds = String(startDate.getSeconds()).padStart(2, "0");
+        switch (type) {
+            case 1:
+                return `${hours}:${minutes}:${seconds}`;
+            case 2:
+                return `${year}-${month}-${day}`;
+            case 3:
+                return `${year}`;
+        }
+    }
+
+    function unix2human(data) {
+        unixTimer = data;
+        var curTime =  moment.unix(unixTimer).format('LTS');
+        return curTime;
+    }
+
 
     // Create dashboards for each ID in the dashboardIds array
     //dashboardIds.forEach(id => createDashboard(id));
-    
-for (let i = 0; i < dashboardIds.length; i++) {
-    // 使用箭头函数以便保留当前的i值
-    setTimeout(() => {
-         createDashboard(dashboardIds[i])
-    }, i * 10);
-}
-	  
-// setInterval(() => {
-//   for (let i = 0; i < dashboardIds.length; i++) {
-//   console.log("check");
-//   const currentTime = new Date().getTime() - 10 * 1000; // 当前时间加 10 秒
-//   var id = dashboardIds[i];
-//   var cid = "currentTime-"+id
-//   const elementTime = new Date(Date.parse(document.getElementById(cid).innerText)).getTime();
-//   console.log('elementTime:'+elementTime)
-//   console.log('currentTime:'+currentTime)
-//   if (elementTime <= currentTime) {
-//     console.log("window.location.reload");
-//     window.location.reload();
-//     break;
-//   }
-// }
-// }, 10000); 
 
-  </script>
+    for (let i = 0; i < dashboardIds.length; i++) {
+        // 使用箭头函数以便保留当前的i值
+        setTimeout(() => {
+            createDashboard(dashboardIds[i])
+        }, i * 100);
+    }
+
+    // setInterval(() => {
+    //   for (let i = 0; i < dashboardIds.length; i++) {
+    //   console.log("check");
+    //   const currentTime = new Date().getTime() - 10 * 1000; // 当前时间加 10 秒
+    //   var id = dashboardIds[i];
+    //   var cid = "currentTime-"+id
+    //   const elementTime = new Date(Date.parse(document.getElementById(cid).innerText)).getTime();
+    //   console.log('elementTime:'+elementTime)
+    //   console.log('currentTime:'+currentTime)
+    //   if (elementTime <= currentTime) {
+    //     console.log("window.location.reload");
+    //     window.location.reload();
+    //     break;
+    //   }
+    // }
+    // }, 10000);
+
+</script>
 </body>
 
 </html>
