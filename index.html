@@ -99,12 +99,43 @@
         }
     });
 
-    const dashboardIds = ['159338', '159339', '159352', '000801', '002317', '300937', '000692', '002157', '000498']; // Example stock IDs, you can add more here.
+    const dashboardIds = ['512170','300760','601899','600995','603993']; // Example stock IDs, you can add more here.
     function getPriceColor(price, currentPrice) {
         if (price > currentPrice) return 'red';
         if (price < currentPrice) return 'green';
         return 'orange'; // or any other color for equal prices
     }
+	
+	function compareTargetPrice(currentPrice, targetPrice,id) {
+	    var text;
+        if (currentPrice >= targetPrice) {
+		  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +targetPrice;
+		};
+        if (currentPrice < targetPrice) {
+		  text = "stock id:"+id+"currentPrice: "+currentPrice+" le targetPrice: " +targetPrice;
+		};
+       // sendMsg(id,text);
+    }
+	
+	function sendMsg(id,text){
+		fetch('https://oapi.dingtalk.com/robot/send?access_token=9dc3c73e3944b29b32eb0ead874914de3f9569bfd7909dd4c2ff3b04c8e4c8b4', {
+		  method: 'POST',
+		  headers: {
+			'Content-Type': 'application/json',
+		  },
+		  body: JSON.stringify({
+			msgtype: "markdown",
+			markdown: {
+			  title: "STOCK ALERT",
+			  text: text
+			}
+		  })
+		})
+		.then(response => response.json())
+		.catch(error => console.error('请求失败:', error));
+
+	
+	}
 
     // Function to create a new dashboard
     function createDashboard(id) {
@@ -128,13 +159,13 @@
         </div>
         `;
         document.getElementById('container').appendChild(dashboard);
-        if (id.startsWith("600") || id.startsWith("601")) {
-            setupRealTimeDataForWs(id)
-        } else {
+        //if (id.startsWith("600") || id.startsWith("601")) {
+           // setupRealTimeDataForWs(id)
+       // } else {
             // Set up real-time updates for this specific dashboard
-            setupRealTimeData(id);
-        }
-
+          //  setupRealTimeData(id);
+       // }
+        setupRealTimeData(id);
     }
 
     // Function to update current time
@@ -155,13 +186,14 @@
         var element = document.getElementById(`currentPrice-${id}`);
         var oldprice = element.innerText;
         element.style.color = getPriceColor(currentPrice, oldprice)
+		compareTargetPrice(currentPrice,oldprice,id)
         element.innerText = currentPrice;
     }
 
     // Function to fetch and display real-time data
     function setupRealTimeData(id) {
-        const url = `https://21.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=0.${id}&wbp2u=|0|0|0|web`;
-
+        //const url = `https://21.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=0.${id}&wbp2u=|0|0|0|web`;
+          const url = `https://50.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=1.${id}&wbp2u=|0|0|0|web`;
         // Establish the EventSource connection
         let source = new EventSource(url);
 
