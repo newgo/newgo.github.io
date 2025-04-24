@@ -99,7 +99,7 @@
         }
     });
 
-    const dashboardIds = ['512170','300760','601899','600995','603993']; // Example stock IDs, you can add more here.
+    const dashboardIds = ['512170','601899','601288','601398','603993']; // Example stock IDs, you can add more here.
     function getPriceColor(price, currentPrice) {
         if (price > currentPrice) return 'red';
         if (price < currentPrice) return 'green';
@@ -108,17 +108,49 @@
 	
 	function compareTargetPrice(currentPrice, targetPrice,id) {
 	    var text;
-        if (currentPrice >= targetPrice) {
-		  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +targetPrice;
-		};
-        if (currentPrice < targetPrice) {
-		  text = "stock id:"+id+"currentPrice: "+currentPrice+" le targetPrice: " +targetPrice;
-		};
-       // sendMsg(id,text);
+		var newTargetPrice = targetPrice
+		console.log("newTargetPrice:"+newTargetPrice)
+		//农行
+		var nyBank = dashboardIds[2]
+		if(nyBank == id){
+		newTargetPrice = 5.10
+			if (currentPrice <= newTargetPrice) {
+			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
+			  sendMsg(id,text);
+			};
+		}
+		//工行
+		var nyBank = dashboardIds[3]
+		if(nyBank == id){
+		newTargetPrice = 7.07
+			if (currentPrice <= newTargetPrice) {
+			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
+			  sendMsg(id,text);
+			};
+		}
+        //紫金矿业
+		var nyBank = dashboardIds[1]
+		if(nyBank == id){
+		newTargetPrice = 17.90
+			if (currentPrice >= newTargetPrice) {
+			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
+			  sendMsg(id,text);
+			};
+		}
+		
+		//医疗etf
+		var nyBank = dashboardIds[0]
+		if(nyBank == id){
+		newTargetPrice = 0.318
+			if (currentPrice >= newTargetPrice) {
+			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
+			  sendMsg(id,text);
+			};
+		}
     }
 	
 	function sendMsg(id,text){
-		fetch('https://oapi.dingtalk.com/robot/send?access_token=9dc3c73e3944b29b32eb0ead874914de3f9569bfd7909dd4c2ff3b04c8e4c8b4', {
+		fetch('http://localhost:86/dingtalk-proxy/', {
 		  method: 'POST',
 		  headers: {
 			'Content-Type': 'application/json',
@@ -345,6 +377,18 @@
         var curTime =  moment.unix(unixTimer).format('LTS');
         return curTime;
     }
+	
+	// 动态拼接方法
+	function composeDateTime(timeStr) {
+		const now = new Date();
+	  // 获取日期组件（注意月份要+1）
+	  const year = now.getFullYear();
+	  const month = String(now.getMonth() + 1).padStart(2, '0'); // 补零
+	  const date = String(now.getDate()).padStart(2, '0');
+	  
+	  // 组合成ISO格式
+	  return `${year}-${month}-${date}T${timeStr}`;
+	}
 
 
     // Create dashboards for each ID in the dashboardIds array
@@ -357,22 +401,24 @@
         }, i * 100);
     }
 
-    // setInterval(() => {
-    //   for (let i = 0; i < dashboardIds.length; i++) {
-    //   console.log("check");
-    //   const currentTime = new Date().getTime() - 10 * 1000; // 当前时间加 10 秒
-    //   var id = dashboardIds[i];
-    //   var cid = "currentTime-"+id
-    //   const elementTime = new Date(Date.parse(document.getElementById(cid).innerText)).getTime();
-    //   console.log('elementTime:'+elementTime)
-    //   console.log('currentTime:'+currentTime)
-    //   if (elementTime <= currentTime) {
-    //     console.log("window.location.reload");
-    //     window.location.reload();
-    //     break;
-    //   }
-    // }
-    // }, 10000);
+     setInterval(() => {
+		   for (let i = 0; i < dashboardIds.length; i++) {
+		   console.log("check");
+		   const currentTime = new Date().getTime() - 10 * 1000; // 当前时间加 10 秒
+		   var id = dashboardIds[i];
+		   var cid = "currentTime-"+id
+		   var text = document.getElementById(cid).innerText
+		   console.log('text:'+text)
+		   const elementTime = Date.parse(composeDateTime(text))
+		   console.log('elementTime:'+elementTime)
+		   console.log('currentTime:'+currentTime)
+		   if (elementTime <= currentTime) {
+			 console.log("window.location.reload");
+			 window.location.reload();
+			 break;
+		   }
+		 }
+     }, 10000);
 
 </script>
 </body>
