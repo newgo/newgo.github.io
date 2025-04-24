@@ -406,6 +406,27 @@
     }
 
      setInterval(() => {
+		   const now = new Date();
+		   const currentHours = now.getHours();
+		   const currentMinutes = now.getMinutes();
+
+		// 定义股票交易时间范围
+		const isTradingTime = (hours, minutes) => {
+			// 上午交易时间：9:30 - 11:30
+			const isMorningTrading = (hours > 9 || (hours === 9 && minutes >= 30)) && hours < 11;
+			// 下午交易时间：13:00 - 15:00
+			const isAfternoonTrading = hours >= 13 && hours < 15;
+			return isMorningTrading || isAfternoonTrading;
+		};
+
+		// 如果当前时间不在交易时间内，则直接返回
+		if (!isTradingTime(currentHours, currentMinutes)) {
+			console.log("The current time is not during stock trading hours, skip the check");
+			return;
+		}
+		   
+		   
+			
 		   for (let i = 0; i < dashboardIds.length; i++) {
 		   console.log("check");
 		   const currentTime = new Date().getTime() - 10 * 1000; // 当前时间加 10 秒
