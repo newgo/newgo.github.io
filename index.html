@@ -98,7 +98,12 @@
             console.log('请输入dashboardId');
         }
     });
-
+	const dashboardMap = new Map()
+	dashboardMap.set('512170',['>=','0.318'])
+	dashboardMap.set('601899',['<=','17.60'])
+	dashboardMap.set('601288',['<=','5.10'])
+	dashboardMap.set('601398',['<=','7.07'])
+	
     const dashboardIds = ['512170','601899','601288','601398','603993']; // Example stock IDs, you can add more here.
     function getPriceColor(price, currentPrice) {
         if (price > currentPrice) return 'red';
@@ -110,42 +115,41 @@
 	    var text;
 		var newTargetPrice = targetPrice
 		console.log("newTargetPrice:"+newTargetPrice)
-		//农行
-		var nyBank = dashboardIds[2]
-		if(nyBank == id){
-		newTargetPrice = 5.10
-			if (currentPrice <= newTargetPrice) {
-			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
-			  sendMsg(id,text);
-			};
-		}
-		//工行
-		var nyBank = dashboardIds[3]
-		if(nyBank == id){
-		newTargetPrice = 7.07
-			if (currentPrice <= newTargetPrice) {
-			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
-			  sendMsg(id,text);
-			};
-		}
-        //紫金矿业
-		var nyBank = dashboardIds[1]
-		if(nyBank == id){
-		newTargetPrice = 17.90
-			if (currentPrice >= newTargetPrice) {
-			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
-			  sendMsg(id,text);
-			};
-		}
-		
-		//医疗etf
-		var nyBank = dashboardIds[0]
-		if(nyBank == id){
-		newTargetPrice = 0.318
-			if (currentPrice >= newTargetPrice) {
-			  text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +newTargetPrice;
-			  sendMsg(id,text);
-			};
+		var data = dashboardMap.get(id)
+		if(undefined != data){
+			var fuhao = data[0]
+			var tPrice = data[1]
+			console.log('getfuhao: ' + fuhao+" get currentPrice:" + currentPrice +" get tPrice:" + tPrice)
+			if('>' == fuhao){
+				console.log('exec fuhao: ' + fuhao)
+				   if (currentPrice > tPrice) {
+					text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +tPrice;
+					sendMsg(id,text);
+				};
+			}
+			
+			if('<' == fuhao){
+				console.log('exec fuhao: ' + fuhao)
+				   if (currentPrice < tPrice) {
+					text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +tPrice;
+					sendMsg(id,text);
+				};
+			}
+			
+			if('>=' == fuhao){
+				console.log('exec fuhao: ' + fuhao)
+				   if (currentPrice >= tPrice) {
+					text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +tPrice;
+					sendMsg(id,text);
+				};
+			}
+			if('<=' == fuhao){
+				console.log('exec fuhao: ' + fuhao)
+				   if (currentPrice <= tPrice) {
+					text = "stock id:"+id+"currentPrice: "+currentPrice+" ga targetPrice: " +tPrice;
+					sendMsg(id,text);
+				};
+			}
 		}
     }
 	
