@@ -100,11 +100,14 @@
     });
 	const dashboardMap = new Map()
 	dashboardMap.set('512170',['>=','0.318'])
-	dashboardMap.set('601899',['<=','17.60'])
+	dashboardMap.set('601899',['<=','17.40'])
 	dashboardMap.set('601288',['<=','5.10'])
 	dashboardMap.set('601398',['<=','7.07'])
+	dashboardMap.set('600988',['<=','26.00'])
+	dashboardMap.set('159201',['<=','0.956'])
 	
-    const dashboardIds = ['512170','601899','601288','601398','603993']; // Example stock IDs, you can add more here.
+    // const dashboardIds = ['512170','601899','601288','601398','603993']; // Example stock IDs, you can add more here.
+	const dashboardIds = Array.from(dashboardMap.keys())
     function getPriceColor(price, currentPrice) {
         if (price > currentPrice) return 'red';
         if (price < currentPrice) return 'green';
@@ -225,18 +228,9 @@
 		compareTargetPrice(currentPrice,oldprice,id)
         element.innerText = currentPrice;
     }
-
-    // Function to fetch and display real-time data
-    function setupRealTimeData(id) {
-        //const url = `https://21.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=0.${id}&wbp2u=|0|0|0|web`;
-          const url = `https://50.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=1.${id}&wbp2u=|0|0|0|web`;
-        // Establish the EventSource connection
-        let source = new EventSource(url);
-
-
-// When a message is received from the server
-        source.addEventListener('message', function (e) {
-            try {
+	
+	function listMessageHandle(e,id){
+		try {
                 console.log(e.data);
                 var data1 = e.data
 
@@ -272,6 +266,21 @@
             } catch (error) {
                 console.error('Error parsing message data', error);
             }
+	}
+
+    // Function to fetch and display real-time data
+    function setupRealTimeData(id) {
+        //const url = `https://21.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=0.${id}&wbp2u=|0|0|0|web`;
+          const url = `https://50.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=1.${id}&wbp2u=|0|0|0|web`;
+		  const url1 = `https://41.push2.eastmoney.com/api/qt/stock/details/sse?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55&mpi=1000&dect=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&pos=-11&secid=0.${id}&wbp2u=|0|0|0|web`;
+        // Establish the EventSource connection
+        let source = new EventSource(url);
+
+
+// When a message is received from the server
+        source.addEventListener('message', function (e) {
+			listMessageHandle(e,id);
+            
         });
 
         // Update the current time every second
@@ -290,9 +299,14 @@
         source.onerror = function (event) {
             console.error('EventSource error, reconnecting...');
             source.close(); // 关闭当前连接
-            //source = new EventSource('url'); // 重新创建EventSource实例
+            source = new EventSource(url1); // 重新创建EventSource实例
+			console.log("retry url:" + url1)
             var element = document.getElementById(`currentPrice-${id}`);
             element.innerText = 'no data';
+				source.addEventListener('message', function (e) {
+				listMessageHandle(e,id);
+				
+			});
         };
     }
 
